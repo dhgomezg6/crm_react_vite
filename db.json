@@ -1,11 +1,12 @@
 {
   "clientes": [
     {
-      "id": 1,
       "nombre": "Juan",
-      "telefono": 102013313,
+      "empresa": "Codigo Con Juan",
       "email": "juan@juan.com",
-      "empresa": "Codigo Con Juan"
+      "telefono": "102013313",
+      "notas": "Notas del cliente 1",
+      "id": 1
     },
     {
       "id": 2,
@@ -41,6 +42,14 @@
       "telefono": 102019999,
       "email": "daniel@daniel.com",
       "empresa": "DDH"
+    },
+    {
+      "nombre": "Hernando",
+      "empresa": "None",
+      "email": "dinl_@hotmail.com",
+      "telefono": "3214685300",
+      "notas": "Ninguna",
+      "id": 7
     }
   ]
 }

@@ -1,43 +1,58 @@
-import { useNavigate, Form, useActionData, redirect } from "react-router-dom"
-
+import { Form, useLoaderData, useActionData, useNavigate, redirect } from "react-router-dom"
+import { obtenerCliente, actualizarCLiente } from "../api/clientes"
 import Formulario from '../components/Formulario'
-import Error from '../components/Error'
-import { agregarCLiente } from "../api/clientes"
+import Error from "../components/Error"
 
-export async function action({request}){
+export async function loader({params}) {
+    const cliente = await obtenerCliente(params.clienteId)
+    if(Object.values(cliente).length === 0) {
+        throw new Response('', {
+            status: 404,
+            statusText: 'No hay resultados'
+        })
+    }
+    return cliente
+}
+
+export async function action({request, params}){
   const formData = await request.formData()
-
   const datos = Object.fromEntries(formData)
-  const email = formData.get('email')
-
+  
   //Validacion
   const errores = []
+  
+  // Validar que todos los campos existan
   if(Object.values(datos).includes(''))
     errores.push('Todos los campos son obligatorios')
 
+  // Validar email
+  const email = formData.get('email')
   let regex = new RegExp("([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\"\(\[\]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(\.[!#-'*+/-9=?A-Z^-~-]+)*|\[[\t -Z^-~]*])");
   if(!regex.test(email)){
     errores.push('El email no es valido')
   }
 
+  // Retornar si hay errores
   if(Object.keys(errores).length){
     return errores
   }
 
-  await agregarCLiente(datos)
+  // Actualizar el cliente
+  await actualizarCLiente(params.clienteId, datos)
 
   return redirect('/')
 }
 
-function NuevoCliente() {
+function EditarCliente() {
 
-  const navigate = useNavigate()
-  const errores = useActionData()
+  const navigate = useNavigate();
+  const cliente = useLoaderData();
+  const errores = useActionData();
 
   return (
     <>
-      <h1 className="font-black text-4xl text-blue-900">Nuevo Cliente</h1>
-      <p className="mt-3">Llena todos los campos para registrar nuevo cliente</p>
+      <h1 className="font-black text-4xl text-blue-900">Editar Cliente</h1>
+      <p className="mt-3">Modifica los datos del cliente</p>
 
       <div className="flex justify-end">
         <button
@@ -56,12 +71,12 @@ function NuevoCliente() {
           method="post"
           noValidate
         >
-          <Formulario />
+          <Formulario cliente={cliente}/>
 
           <input 
             type="submit"
             className="mt-5 w-full bg-blue-800 uppercase font-bold text-white text-lg"
-            value="Registrar Cliente"
+            value="Actualizar Cliente"
           />
         </Form>
       </div>
@@ -69,4 +84,4 @@ function NuevoCliente() {
   )
 }
 
-export default NuevoCliente
+export default EditarCliente
